@@ -1,5 +1,23 @@
 package com.example.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.example.entity.Message;
+import com.example.entity.Account;
+import com.example.service.AccountService;
+import com.example.service.MessageService;
+import java.util.List;
+
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
@@ -7,6 +25,59 @@ package com.example.controller;
  * where applicable as well as the @ResponseBody and @PathVariable annotations. You should
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
+@RestController
+@RequestMapping("/")
 public class SocialMediaController {
+    AccountService accountService;
+    MessageService messageService;
+
+    
+    public SocialMediaController(AccountService accountService, MessageService messageService) {
+        this.accountService = accountService;
+        this.messageService = messageService;
+    }
+
+    @PostMapping("register")
+    public ResponseEntity<Account> register(@RequestBody Account newAccount){
+        return accountService.register(newAccount);
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<Account> login(@RequestBody Account userAccount){
+        return accountService.login(userAccount);
+    }
+
+    @PostMapping("messages")
+    public ResponseEntity<Message> createMessage(@RequestBody Message newMessage, Account account){
+        return messageService.addMessage(newMessage);
+    }
+
+    @GetMapping("messages")
+    public ResponseEntity<List<Message>> findAllMessages(){
+        return messageService.findAllMessages();
+    }
+
+    @GetMapping("messages/{message_id}")
+    public ResponseEntity<Message> findMessagesById(@PathVariable int message_id){
+        return messageService.findMessageById(message_id);
+    }
+
+    @GetMapping("accounts/{account_id}/messages")
+    public ResponseEntity<List<Message>> findMessagesByPoster(@PathVariable int account_id){
+        return messageService.findAllByPostedBy(account_id);
+    }
+
+    @DeleteMapping("messages/{id}")
+    public ResponseEntity<Integer> deleteMessage(@PathVariable int id){
+        return messageService.deleteMessage(id);
+    }
+
+    @PatchMapping("messages/{message_id}")
+    public ResponseEntity<Integer> updateMessage(@PathVariable int message_id, @RequestBody Message newMessage){
+        return messageService.updateMessage(message_id, newMessage);
+    }
+
+   
+
 
 }

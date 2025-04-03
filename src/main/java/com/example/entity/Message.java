@@ -15,6 +15,8 @@ public class Message {
      */
      @Column (name="messageId")
      @Id @GeneratedValue
+
+     
     private Integer messageId;
     /**
      * The id for the user who has posted this message. We will assume that this is provided by the front-end of this
