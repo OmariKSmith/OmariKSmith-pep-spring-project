@@ -17,6 +17,7 @@ import com.example.entity.Account;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -39,45 +40,75 @@ public class SocialMediaController {
 
     @PostMapping("register")
     public ResponseEntity<Account> register(@RequestBody Account newAccount){
-        return accountService.register(newAccount);
+        return accountService.register(newAccount)
+                .map(acc -> ResponseEntity
+                .status(200)
+                .body(acc))
+                .orElseGet(()-> ResponseEntity.status(409).body(newAccount));
     }
 
     @PostMapping("login")
     public ResponseEntity<Account> login(@RequestBody Account userAccount){
-        return accountService.login(userAccount);
+        Optional<Account> account = accountService.login(userAccount);
+        return account.map(acc -> ResponseEntity
+                        .status(200)
+                        .body(acc))
+                        .orElseGet(() -> ResponseEntity.status(401).body(userAccount));
     }
 
     @PostMapping("messages")
-    public ResponseEntity<Message> createMessage(@RequestBody Message newMessage, Account account){
-        return messageService.addMessage(newMessage);
+    public ResponseEntity<Message> createMessage(@RequestBody Message newMessage){
+        Optional<Message> message = messageService.addMessage(newMessage);
+        return  message.map(msg -> ResponseEntity
+                .status(200)
+                .body(msg))
+                .orElseGet(()-> ResponseEntity.status(400).body(newMessage));
     }
 
     @GetMapping("messages")
     public ResponseEntity<List<Message>> findAllMessages(){
-        return messageService.findAllMessages();
+        Optional<List<Message>> messages = messageService.findAllMessages();
+      return messages.map(msgs -> ResponseEntity
+                .status(200)
+                .body(msgs))
+                .orElseGet(()-> ResponseEntity.status(200).build());
     }
 
     @GetMapping("messages/{message_id}")
     public ResponseEntity<Message> findMessagesById(@PathVariable int message_id){
-        return messageService.findMessageById(message_id);
+        Optional<Message> message = messageService.findMessageById(message_id);
+        return message.map(mg -> ResponseEntity
+                .status(200)
+                .body(mg))
+                .orElseGet(()-> ResponseEntity.status(200).build());
+
     }
 
     @GetMapping("accounts/{account_id}/messages")
     public ResponseEntity<List<Message>> findMessagesByPoster(@PathVariable int account_id){
-        return messageService.findAllByPostedBy(account_id);
+        return messageService.findAllByPostedBy(account_id)
+                .map(msg -> ResponseEntity
+                .status(200)
+                .body(msg))
+                .orElseGet(()-> ResponseEntity.status(200).build());
     }
 
     @DeleteMapping("messages/{id}")
     public ResponseEntity<Integer> deleteMessage(@PathVariable int id){
-        return messageService.deleteMessage(id);
+        return messageService.deleteMessage(id)
+                .map(msg -> ResponseEntity
+                .status(200)
+                .body(msg))
+                .orElseGet(()-> ResponseEntity.status(200).build());
     }
 
     @PatchMapping("messages/{message_id}")
     public ResponseEntity<Integer> updateMessage(@PathVariable int message_id, @RequestBody Message newMessage){
-        return messageService.updateMessage(message_id, newMessage);
+        return messageService.updateMessage(message_id,newMessage)
+                .map(msg-> ResponseEntity
+                        .status(200)
+                        .body(msg))
+                .orElseGet(()-> ResponseEntity.status(400).build());
     }
-
-   
-
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.example.entity.Message;
 @Repository
@@ -18,12 +19,12 @@ public interface MessageRepository extends JpaRepository<Message,Integer>{
     @Transactional
     @Modifying
     @Query(value = "DELETE FROM message m WHERE m.messageId = :messageId", nativeQuery = true)
-    int deleteById(@Param("messageId") int messageId);
+    Optional<Integer> deleteById(@Param("messageId") int messageId);
 
     @Transactional
     @Modifying
     @Query(value = "UPDATE message m SET m.messageText = :messageText WHERE m.messageId = :messageId",nativeQuery = true)
-    int updateByMessageId(@Param("messageId") int messageId, @Param("messageText") String messageText);
+    Optional<Integer> updateByMessageId(@Param("messageId") int messageId, @Param("messageText") String messageText);
 
    
 

@@ -1,6 +1,6 @@
 package com.example.service;
 
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import com.example.entity.Account;
@@ -18,63 +18,44 @@ public class MessageService {
         this.accountRepository = accountRepository;
     }
 
-    public ResponseEntity<Message> addMessage(Message newMessage){
+    public Optional<Message> addMessage(Message newMessage){
         Optional<Account> account = accountRepository.findById(newMessage.getPostedBy());
                 
         if(account.isPresent() && isValidatedMessage(newMessage)){
-            messageRepository.save(newMessage);
-            return ResponseEntity.status(200)
-                    .body(newMessage);
+          return Optional.of( messageRepository.save(newMessage));
         }
-        return ResponseEntity.status(400)
-                .build();
+        return Optional.empty();
     }
 
-    public ResponseEntity<Message> findMessageById(int message_id){
-        Optional<Message> message = messageRepository.findById(message_id);
-                
+    public Optional<Message> findMessageById(int message_id){
+        return messageRepository.findById(message_id);
+    }
+
+    public Optional<List <Message>> findAllMessages(){
+        return Optional.of(messageRepository.findAll());
+    }
+
+    public Optional<List<Message>> findAllByPostedBy(int postedBy){
+        return Optional.of(messageRepository.findAllByPostedBy(postedBy));
+    }
+
+    public Optional<Integer> deleteMessage(int id){
+        Optional<Message> message = messageRepository.findById(id);
         if(message.isPresent()){
-            return ResponseEntity.status(200)
-                    .body(message.get());
+            return Optional.of(1);
         }
-        return ResponseEntity.status(200)
-                .build();
+        return  Optional.empty();
     }
 
-    public ResponseEntity<List<Message>> findAllMessages(){
-        List<Message> messageOp =  messageRepository.findAll();
-        return ResponseEntity.status(200)
-                .body(messageOp);
-    }
-
-    public ResponseEntity<List<Message>> findAllByPostedBy(int postedBy){
-        List<Message> messageOp =  messageRepository.findAllByPostedBy(postedBy);
-        return ResponseEntity.status(200)
-                .body(messageOp);
-    }
-
-    public ResponseEntity<Integer> deleteMessage(int id){
-        Optional<Message> message = messageRepository.findById(id);
-        
-        if (message.isPresent()) {
-            return ResponseEntity.status(200)
-                .body(messageRepository.deleteById(id));
-        }
-        return  ResponseEntity.status(200).build();
-    }
-
-    public ResponseEntity<Integer> updateMessage(int id, Message newMessage){
-        Optional<Message> message = messageRepository.findById(id);
-
-        if (message.isPresent() && isValidatedMessage(newMessage)) {
-            return ResponseEntity.status(200).body(messageRepository.updateByMessageId(id, newMessage.getMessageText()));
+    public Optional<Integer> updateMessage(int id, Message newMessage){
+        Optional<Integer> message = messageRepository.updateByMessageId(id,newMessage.getMessageText());
+        if (message.get() == 1 && isValidatedMessage(newMessage)) {
+            return Optional.of(1);
        }
-        return  ResponseEntity.status(400).build();
+        return Optional.empty();
     }
 
-    private boolean isValidatedMessage(Message message){
+    public boolean isValidatedMessage(Message message){
         return !message.getMessageText().isBlank() && message.getMessageText().length() < 255;
     }
-   
-
-}
+ }
